@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#define QUEUE_SIZE 2
+#define QUEUE_SIZE 10
 #define TOTAL_ELEMENTS 100
 #define BUFF_SIZE 5
 
@@ -71,7 +71,7 @@ int main(){
 			sem_trywait(full_TA1);
 			close(pipe_TA1[1]);
 			read(pipe_TA1[0],data,BUFF_SIZE);
-			printf("TA1:%s\n",data);
+			printf("<Completed,1,%s>\n",data);
 			sem_post(empty_TA1);
 		}		
 	}else{
@@ -82,7 +82,7 @@ int main(){
 				sem_trywait(full_TA2);
 				close(pipe_TA2[1]);
 				read(pipe_TA2[0],data,BUFF_SIZE);
-				printf("TA2:%s\n",data);
+				printf("<Completed,2,%s>\n",data);
 				sem_post(empty_TA2);
 			}
 		}else{
@@ -93,7 +93,7 @@ int main(){
 					sem_trywait(full_TA3);
 					close(pipe_TA3[1]);
 					read(pipe_TA3[0],data,BUFF_SIZE);
-					printf("TA3:%s\n",data);
+					printf("<Completed,3,%s>\n",data);
 					sem_post(empty_TA3);
 				}
 			}else{
@@ -104,21 +104,27 @@ int main(){
 						sem_trywait(full_TA4);
 						close(pipe_TA4[1]);
 						read(pipe_TA4[0],data,BUFF_SIZE);
-						printf("TA4:%s\n",data);
+						printf("<Completed,4,%s>\n",data);
 						sem_post(empty_TA4);
 					}
 				}else{
 					int mssg=0;
+					int job_count1=0,job_count2=0,job_count3=0,job_count4=0;
 					for(int i=1;i<=TOTAL_ELEMENTS;){
 						char data[BUFF_SIZE];
 
 						mssg=sem_trywait(empty_TA1);
 						if(mssg!=-1){
-							printf("Produced 1 :%d\n",i);
-							sprintf(data,"%d",i);
-							i++;
-							close(pipe_TA1[0]);
-							write(pipe_TA1[1],data,BUFF_SIZE);
+							if(job_count1<TOTAL_ELEMENTS/4){
+								printf("<Assigned,1,%d>\n",i);
+								sprintf(data,"%d",i);
+								i++;
+								job_count1++;
+								close(pipe_TA1[0]);
+								write(pipe_TA1[1],data,BUFF_SIZE);
+							}else{
+								printf("Done Producing Job for TA1\n");
+							}
 							sem_post(full_TA1);
 						}else{
 							printf("Queue 1 Full\n");
@@ -128,11 +134,16 @@ int main(){
 
 						mssg=sem_trywait(empty_TA2);
 						if(mssg!=-1){
-							printf("Produced 2 :%d\n",i);
-							sprintf(data,"%d",i);
-							i++;
-							close(pipe_TA2[0]);
-							write(pipe_TA2[1],data,BUFF_SIZE);
+							if(job_count2<TOTAL_ELEMENTS/4){
+								printf("<Assigned,2,%d>\n",i);
+								sprintf(data,"%d",i);
+								i++;
+								job_count2++;
+								close(pipe_TA2[0]);
+								write(pipe_TA2[1],data,BUFF_SIZE);
+							}else{
+								printf("Done Producing Job for TA2\n");
+							}
 							sem_post(full_TA2);
 						}else{
 							printf("Queue 2 Full\n");
@@ -143,11 +154,16 @@ int main(){
 
 						mssg=sem_trywait(empty_TA3);
 						if(mssg!=-1){
-							printf("Produced 3 :%d\n",i);
-							sprintf(data,"%d",i);
-							i++;
-							close(pipe_TA3[0]);
-							write(pipe_TA3[1],data,BUFF_SIZE);
+							if(job_count3<TOTAL_ELEMENTS/4){
+								printf("<Assigned,3,%d>\n",i);
+								sprintf(data,"%d",i);
+								i++;
+								job_count3++;
+								close(pipe_TA3[0]);
+								write(pipe_TA3[1],data,BUFF_SIZE);
+							}else{
+								printf("Done Producing Job for TA3\n");
+							}
 							sem_post(full_TA3);
 						}else{
 							printf("Queue 3 Full\n");
@@ -157,12 +173,17 @@ int main(){
 
 						mssg=sem_trywait(empty_TA4);
 						if(mssg!=-1){
-							printf("Produced 4 :%d\n",i);
-							sprintf(data,"%d",i);
-							i++;
-							close(pipe_TA4[0]);
-							write(pipe_TA4[1],data,BUFF_SIZE);
-							sem_post(full_TA4);
+							if(job_count4<TOTAL_ELEMENTS/4){
+								printf("<Assigned,4,%d>\n",i);
+								sprintf(data,"%d",i);
+								i++;
+								job_count4++;
+								close(pipe_TA4[0]);
+								write(pipe_TA4[1],data,BUFF_SIZE);
+							}else{
+								printf("Done Producing Job for TA4\n");
+							}
+							sem_post(full_TA1);
 						}else{
 							printf("Queue 4 Full\n");
 						}
@@ -170,6 +191,10 @@ int main(){
 							break;
 
 					}
+					printf("\nJob count 1:%d\n",job_count1);
+					printf("Job count 2:%d\n",job_count2);
+					printf("Job count 3:%d\n",job_count3);
+					printf("Job count 4:%d\n",job_count4);
 					
 				}
 			}
