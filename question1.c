@@ -191,7 +191,7 @@ int main(){
 
 					// LOOP UNTIL ALL THE JOBS ARE PRODUCED
 					for(int i=1;i<=TOTAL_ELEMENTS;){
-
+						printf("************* %d",flag_full_TA1);
 						char data[BUFF_SIZE];
 						
 					// ######################################### MAKE JOBS FOR TA 1 ###########################################	
@@ -312,7 +312,7 @@ int main(){
 						}else{
 							if(flag_full_TA4==0){
 								printf("Queue 4 Full\n");
-								flag_full_TA1=1;
+								flag_full_TA4=1;
 							}
 						}
 
